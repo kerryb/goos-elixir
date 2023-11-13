@@ -1,4 +1,5 @@
 defmodule AuctionSniper.ApplicationRunner do
+  @moduledoc false
   alias AuctionSniper.AuctionSniperDriver
 
   @sniper_id "sniper"

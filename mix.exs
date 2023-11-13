@@ -29,7 +29,8 @@ defmodule AuctionSniper.MixProject do
   defp deps do
     [
       {:scenic, "~> 0.11.0"},
-      {:scenic_driver_local, "~> 0.11.0"}
+      {:scenic_driver_local, "~> 0.11.0"},
+      {:styler, "~> 0.10", only: [:dev, :test], runtime: false}
     ]
   end
 

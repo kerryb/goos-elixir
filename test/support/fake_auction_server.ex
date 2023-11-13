@@ -1,4 +1,5 @@
 defmodule AuctionSniper.FakeAuctionServer do
+  @moduledoc false
   use GenServer
 
   def start_link(id) do

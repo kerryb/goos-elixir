@@ -2,6 +2,7 @@
 # and any set of other sensor processes
 
 defmodule AuctionSniper.PubSub.Supervisor do
+  @moduledoc false
   use Supervisor
 
   def start_link(_) do
@@ -9,9 +10,7 @@ defmodule AuctionSniper.PubSub.Supervisor do
   end
 
   def init(:ok) do
-    [
-      # add your data publishers here
-    ]
-    |> Supervisor.init(strategy: :one_for_one)
+    Supervisor.init([], strategy: :one_for_one)
+    # add your data publishers here
   end
 end

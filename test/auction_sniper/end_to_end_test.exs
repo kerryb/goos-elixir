@@ -1,5 +1,6 @@
 defmodule AuctionSniper.EndToEndTest do
   use ExUnit.Case, async: true
+
   alias AuctionSniper.ApplicationRunner
   alias AuctionSniper.FakeAuctionServer
 

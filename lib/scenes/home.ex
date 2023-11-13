@@ -1,10 +1,13 @@
 defmodule AuctionSniper.Scene.Home do
+  @moduledoc false
   use Scenic.Scene
-  require Logger
+
+  import Scenic.Primitives
 
   alias Scenic.Graph
 
-  import Scenic.Primitives
+  require Logger
+
   # import Scenic.Components
 
   @note """
@@ -27,13 +30,14 @@ defmodule AuctionSniper.Scene.Home do
     {width, height} = scene.viewport.size
 
     # show the version of scenic and the glfw driver
-    scenic_ver = Application.spec(:scenic, :vsn) |> to_string()
-    driver_ver = Application.spec(:scenic_driver_local, :vsn) |> to_string()
+    scenic_ver = :scenic |> Application.spec(:vsn) |> to_string()
+    driver_ver = :scenic_driver_local |> Application.spec(:vsn) |> to_string()
 
     info = "scenic: v#{scenic_ver}\nscenic_driver_local: v#{driver_ver}"
 
     graph =
-      Graph.build(font: :roboto, font_size: @text_size)
+      [font: :roboto, font_size: @text_size]
+      |> Graph.build()
       |> add_specs_to_graph([
         text_spec(info, translate: {20, 40}),
         text_spec(@note, translate: {20, 120}),
