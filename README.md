@@ -13,4 +13,14 @@ I’ve previously [done this in Ruby](https://github.com/kerryb/goos-ruby).
 ## Library choices
 
   * Gui: [Scenic](https://hexdocs.pm/scenic/welcome.html)
-  * XMPP: [ejabberd](https://docs.ejabberd.im/developer/extending-ejabberd/elixir/)
+
+## Rerequisites
+
+### XMPP server
+
+I used Openfire, configured as per chapter 11 of the book. I used OpenJDK
+(`brew install openjdk`), then had to add `export
+JAVA_HOME=/usr/local/Cellar/openjdk/21.0.1` to my profile, and also recursively
+`chown` the `/usr/local/openfire` directory to my local user, before running
+`/usr/local/openfire/bin/openfire.sh` and using the web console to add users
+and disable kicking (Server Settings → Resource Policy).
