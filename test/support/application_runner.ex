@@ -1,16 +1,22 @@
 defmodule AuctionSniper.ApplicationRunner do
-  use GenServer
+  alias AuctionSniper.AuctionSniperDriver
 
-  def start_link(_arg) do
-    GenServer.start_link(__MODULE__, nil)
-  end
+  @sniper_id "sniper"
+  @sniper_password "sniper"
 
-  @impl GenServer
-  def init(init_arg) do
-    {:ok, init_arg}
-  end
+  @status_joining "Joining"
 
-  def start_bidding_in(_application, _auction) do
+  def start_bidding_in(auction) do
+    main_viewport_config = Application.get_env(:auction_sniper, :viewport)
+
+    children = [
+      {Scenic, [main_viewport_config]},
+      AuctionSniper.PubSub.Supervisor
+    ]
+
+    {:ok, pid} = Supervisor.start_link(children, strategy: :one_for_one)
+    AuctionSniperDriver.shows_sniper_status(pid, @status_joining)
+    {:ok, pid}
   end
 
   def has_received_join_request_from_sniper(_application, _auction) do
