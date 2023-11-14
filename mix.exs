@@ -21,7 +21,7 @@ defmodule AuctionSniper.MixProject do
   def application do
     [
       mod: {AuctionSniper, []},
-      extra_applications: [:crypto]
+      extra_applications: [:crypto, :observer, :wx, :runtime_tools]
     ]
   end
 
