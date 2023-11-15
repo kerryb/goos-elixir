@@ -1,5 +1,5 @@
 defmodule AuctionSniper.EndToEndTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias AuctionSniper.ApplicationRunner
   alias AuctionSniper.FakeAuctionServer
@@ -7,7 +7,14 @@ defmodule AuctionSniper.EndToEndTest do
   describe "AuctionSniper end-to-end" do
     setup do
       {:ok, auction} = start_supervised({FakeAuctionServer, "item-54321"})
-      %{auction: auction}
+      out = Scenic.Test.ViewPort.start({AuctionSniper.Scene, {nil, nil}})
+
+      # needed to give time for the pid and vp to close
+      on_exit(fn -> Process.sleep(1) end)
+
+      Map.put(out, :auction, auction)
+      # |> Map.put(:scene, scene)
+      # |> Map.put(:pid, pid)
     end
 
     test "sniper joins auction until auction closes", %{auction: auction} do

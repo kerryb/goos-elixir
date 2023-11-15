@@ -1,0 +1,13 @@
+# GOOS Playground
+
+## Section
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+:main_viewport
+|> Process.whereis()
+|> :sys.get_state()
+|> Map.get(:script_table)
+|> :ets.tab2list()
+```
