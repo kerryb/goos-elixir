@@ -9,6 +9,7 @@ defmodule AuctionSniper.ApplicationRunner do
   @sniper_password "sniper"
 
   @status_joining "Joining"
+  @status_lost "Lost"
 
   def start_bidding_in(auction) do
     {:ok, _sniper} = AuctionSniper.start(:temporary, [@sniper_id, @sniper_password, FakeAuctionServer.item_id(auction)])
@@ -16,6 +17,6 @@ defmodule AuctionSniper.ApplicationRunner do
   end
 
   def shows_sniper_has_lost_auction do
-    flunk("TODO")
+    AuctionSniperDriver.shows_sniper_status(@status_lost)
   end
 end

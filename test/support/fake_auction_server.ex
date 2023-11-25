@@ -2,6 +2,8 @@ defmodule AuctionSniper.FakeAuctionServer do
   @moduledoc false
   use GenServer
 
+  import ExUnit.Assertions
+
   def start_link(item_id) do
     GenServer.start_link(__MODULE__, item_id)
   end
@@ -22,6 +24,7 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def has_received_join_request_from_sniper(_auction) do
+    flunk("TODO")
   end
 
   @impl GenServer
