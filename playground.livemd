@@ -2,22 +2,6 @@
 
 ## Section
 
-<!-- livebook:{"reevaluate_automatically":true} -->
-
-```elixir
-script_table =
-  :main_viewport
-  |> Process.whereis()
-  |> :sys.get_state()
-  |> Map.get(:script_table)
-
-:ets.tab2list(script_table)
-```
-
-```elixir
-[{_id, graph, _pid}] = :ets.lookup(script_table, "_main_")
-```
-
 ```elixir
 {_, text} = Enum.find(graph, &match?({:draw_text, _}, &1))
 ```

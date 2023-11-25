@@ -24,3 +24,11 @@ JAVA_HOME=/usr/local/Cellar/openjdk/21.0.1` to my profile, and also recursively
 `chown` the `/usr/local/openfire` directory to my local user, before running
 `/usr/local/openfire/bin/openfire.sh` and using the web console to add users
 and disable kicking (Server Settings → Resource Policy).
+
+### XMPP client
+
+I initially tried both [XMPP](https://github.com/processone/xmpp) and
+[Romeo](https://github.com/scrogson/romeo), but couldn’t get either of them to
+build under the latest versions of Erlang (26.1.2) and Elixir (1.15.7). I’m
+currently trying [escalus](https://github.com/esl/escalus), which does at least
+compile.

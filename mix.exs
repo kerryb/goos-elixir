@@ -28,6 +28,7 @@ defmodule AuctionSniper.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:escalus, "~> 4.2"},
       {:scenic, "~> 0.11.0"},
       {:scenic_driver_local, "~> 0.11.0"},
       {:styler, "~> 0.10", only: [:dev, :test], runtime: false}
