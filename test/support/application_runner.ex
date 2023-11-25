@@ -3,6 +3,7 @@ defmodule AuctionSniper.ApplicationRunner do
   import ExUnit.Assertions
 
   alias AuctionSniper.AuctionSniperDriver
+  alias AuctionSniper.FakeAuctionServer
 
   @sniper_id "sniper"
   @sniper_password "sniper"
@@ -10,7 +11,7 @@ defmodule AuctionSniper.ApplicationRunner do
   @status_joining "Joining"
 
   def start_bidding_in(auction) do
-    {:ok, _pid} = AuctionSniper.start(:temporary, [@sniper_id, @sniper_password])
+    {:ok, _sniper} = AuctionSniper.start(:temporary, [@sniper_id, @sniper_password, FakeAuctionServer.item_id(auction)])
     AuctionSniperDriver.shows_sniper_status(@status_joining)
   end
 

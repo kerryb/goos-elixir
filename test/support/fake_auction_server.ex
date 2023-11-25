@@ -2,13 +2,17 @@ defmodule AuctionSniper.FakeAuctionServer do
   @moduledoc false
   use GenServer
 
-  def start_link(id) do
-    GenServer.start_link(__MODULE__, id)
+  def start_link(item_id) do
+    GenServer.start_link(__MODULE__, item_id)
   end
 
   @impl GenServer
-  def init(init_arg) do
-    {:ok, init_arg}
+  def init(item_id) do
+    {:ok, %{item_id: item_id}}
+  end
+
+  def item_id(pid) do
+    GenServer.call(pid, :item_id)
   end
 
   def start_selling_item(_auction) do
@@ -18,5 +22,10 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def has_received_join_request_from_sniper(_auction) do
+  end
+
+  @impl GenServer
+  def handle_call(:item_id, _from, state) do
+    {:reply, state.item_id, state}
   end
 end
