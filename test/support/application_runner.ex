@@ -10,7 +10,7 @@ defmodule AuctionSniper.ApplicationRunner do
   @status_joining "Joining"
 
   def start_bidding_in(auction) do
-    {:ok, _pid} = Application.ensure_all_started(:auction_sniper)
+    {:ok, _pid} = AuctionSniper.start(:temporary, [@sniper_id, @sniper_password])
     AuctionSniperDriver.shows_sniper_status(@status_joining)
   end
 
