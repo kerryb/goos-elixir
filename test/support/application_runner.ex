@@ -15,10 +15,6 @@ defmodule AuctionSniper.ApplicationRunner do
     AuctionSniperDriver.shows_sniper_status(@status_joining)
   end
 
-  def has_received_join_request_from_sniper(_auction) do
-    flunk("TODO")
-  end
-
   def shows_sniper_has_lost_auction do
     flunk("TODO")
   end
