@@ -1,14 +1,14 @@
-.PHONY: setup style test update-deps
+.PHONY: setup outdated style test update-deps
 all: style compile test
-setup:
-	mix deps.get
-style:
-	mix format --check-formatted
 compile:
 	mix compile --warnings-as-errors
-test:
-	mix test
+style:
+	mix format --check-formatted
 outdated:
 	mix hex.outdated
+setup:
+	mix deps.get
+test:
+	mix test
 update-deps:
 	mix deps.update --all
