@@ -5,6 +5,7 @@ defmodule AuctionSniper.ApplicationRunner do
   alias AuctionSniper.AuctionSniperDriver
   alias AuctionSniper.FakeAuctionServer
 
+  @xmpp_hostname "localhost"
   @sniper_id "sniper"
   @sniper_password "sniper"
 
@@ -12,7 +13,9 @@ defmodule AuctionSniper.ApplicationRunner do
   @status_lost "Lost"
 
   def start_bidding_in(auction) do
-    {:ok, _sniper} = AuctionSniper.start(:temporary, [@sniper_id, @sniper_password, FakeAuctionServer.item_id(auction)])
+    {:ok, _sniper} =
+      AuctionSniper.start(:temporary, [@xmpp_hostname, @sniper_id, @sniper_password, FakeAuctionServer.item_id(auction)])
+
     AuctionSniperDriver.shows_sniper_status(@status_joining)
   end
 
