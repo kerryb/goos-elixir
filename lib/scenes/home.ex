@@ -21,7 +21,7 @@ defmodule AuctionSniper.Scene.Home do
       [font: :roboto, font_size: @text_size]
       |> Graph.build()
       |> add_specs_to_graph([
-        text_spec("Hello world", translate: {20, 40})
+        text_spec("Joining", translate: {20, 40})
       ])
 
     scene = push_graph(scene, graph)

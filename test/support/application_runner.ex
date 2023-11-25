@@ -1,5 +1,7 @@
 defmodule AuctionSniper.ApplicationRunner do
   @moduledoc false
+  import ExUnit.Assertions
+
   alias AuctionSniper.AuctionSniperDriver
 
   @sniper_id "sniper"
@@ -12,9 +14,11 @@ defmodule AuctionSniper.ApplicationRunner do
     AuctionSniperDriver.shows_sniper_status(@status_joining)
   end
 
-  def has_received_join_request_from_sniper(_application, _auction) do
+  def has_received_join_request_from_sniper(_auction) do
+    flunk("TODO")
   end
 
-  def shows_sniper_has_lost_auction(_application) do
+  def shows_sniper_has_lost_auction do
+    flunk("TODO")
   end
 end

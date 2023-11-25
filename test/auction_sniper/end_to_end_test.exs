@@ -12,10 +12,10 @@ defmodule AuctionSniper.EndToEndTest do
 
     test "sniper joins auction until auction closes", %{auction: auction} do
       FakeAuctionServer.start_selling_item(auction)
-      {:ok, application} = ApplicationRunner.start_bidding_in(auction)
+      ApplicationRunner.start_bidding_in(auction)
       FakeAuctionServer.has_received_join_request_from_sniper(auction)
       FakeAuctionServer.announce_closed(auction)
-      ApplicationRunner.shows_sniper_has_lost_auction(application)
+      ApplicationRunner.shows_sniper_has_lost_auction()
     end
   end
 end
