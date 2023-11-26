@@ -3,5 +3,14 @@
 ## Section
 
 ```elixir
-{_, text} = Enum.find(graph, &match?({:draw_text, _}, &1))
+# :escalus.create_users({:escalus_users, [
+#  {:sniper, [username: "sniper", password: "sniper", server: "localhost"]},
+#  {:auction, [username: "auction_item-54321", password: "auction", server: "localhost"]}
+# ]})
+
+:escalus.send(:sniper, :escalus_stanza.chat_to("auction", "Ping"))
+```
+
+```elixir
+Application.get_all_env(:escalus)
 ```
