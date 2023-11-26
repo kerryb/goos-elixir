@@ -27,8 +27,9 @@ and disable kicking (Server Settings → Resource Policy).
 
 ### XMPP client
 
-I initially tried both [XMPP](https://github.com/processone/xmpp) and
-[Romeo](https://github.com/scrogson/romeo), but couldn’t get either of them to
-build under the latest versions of Erlang (26.1.2) and Elixir (1.15.7). I’m
-currently trying [escalus](https://github.com/esl/escalus), which does at least
-compile.
+I initially tried [XMPP](https://github.com/processone/xmpp), but couldn’t get
+it to compile under the latest versions of Erlang (26.1.2) and Elixir (1.15.7),
+so I ended up going with [Romeo](https://github.com/scrogson/romeo). That
+didn’t compile either, but at least it’s written in Elixir rather than Erlang,
+so I was able to [fork it](https://github.com/kerryb/romeo.git) and fix the
+errors.

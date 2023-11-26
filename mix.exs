@@ -21,14 +21,14 @@ defmodule AuctionSniper.MixProject do
   def application do
     [
       mod: {AuctionSniper, []},
-      extra_applications: [:crypto, :observer, :wx, :runtime_tools]
+      extra_applications: [:crypto, :observer, :wx, :runtime_tools, :romeo, :ssl]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:escalus, "~> 4.2"},
+      {:romeo, git: "https://github.com/kerryb/romeo.git", branch: "main"},
       {:scenic, "~> 0.11.0"},
       {:scenic_driver_local, "~> 0.11.0"},
       {:styler, "~> 0.10", only: [:dev, :test], runtime: false}

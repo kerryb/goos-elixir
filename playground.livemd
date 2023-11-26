@@ -3,14 +3,12 @@
 ## Section
 
 ```elixir
-# :escalus.create_users({:escalus_users, [
-#  {:sniper, [username: "sniper", password: "sniper", server: "localhost"]},
-#  {:auction, [username: "auction_item-54321", password: "auction", server: "localhost"]}
-# ]})
+alias Romeo.Stanza
+alias Romeo.Connection, as: Conn
+alias Romeo.Roster
 
-:escalus.send(:sniper, :escalus_stanza.chat_to("auction", "Ping"))
-```
+opts = [jid: "sniper@localhost", password: "sniper", ssl_opts: [verify: :verify_none]]
 
-```elixir
-Application.get_all_env(:escalus)
+# Start the client
+{:ok, pid} = Conn.start_link(opts)
 ```
