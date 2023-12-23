@@ -4,11 +4,54 @@
 
 ```elixir
 alias Romeo.Stanza
-alias Romeo.Connection, as: Conn
+alias Romeo.Connection
 alias Romeo.Roster
 
-opts = [jid: "sniper@localhost", password: "sniper", ssl_opts: [verify: :verify_none]]
+defmodule Listener do
+  def listen do
+    receive do
+      {:stanza,
+       %{
+         to: %{user: "auction-item-54321"},
+         from: %{user: "sniper"},
+         type: "chat",
+         body: body
+       }} ->
+        IO.puts("Received #{inspect(body)} from sniper")
 
-# Start the client
-{:ok, pid} = Conn.start_link(opts)
+      _msg ->
+        # IO.inspect(msg, label: "Received message")
+        listen()
+    after
+      :timer.seconds(5) ->
+        nil
+    end
+  end
+end
+```
+
+```elixir
+{:ok, auction_pid} =
+  Connection.start_link(
+    jid: "auction-item-54321@localhost",
+    password: "auction",
+    ssl_opts: [verify: :verify_none]
+  )
+
+:ok = Connection.send(auction_pid, Stanza.presence())
+
+{:ok, sniper_pid} =
+  Connection.start_link(
+    jid: "sniper@localhost",
+    password: "sniper",
+    ssl_opts: [verify: :verify_none]
+  )
+
+:ok = Connection.send(sniper_pid, Stanza.presence())
+
+:ok = Connection.send(sniper_pid, Stanza.message("auction-item-54321@localhost", "chat", "Join"))
+
+Listener.listen()
+Connection.close(auction_pid)
+Connection.close(sniper_pid)
 ```
