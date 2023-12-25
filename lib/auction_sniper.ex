@@ -23,7 +23,7 @@ defmodule AuctionSniper do
       Connection.start_link(jid: jid(username, hostname), password: password, ssl_opts: [verify: :verify_none])
 
     :ok = Connection.send(connection_pid, Stanza.presence())
-    :ok = Connection.send(connection_pid, Stanza.message(jid(auction_id(item_id), hostname), "chat", "Join"))
+    :ok = Connection.send(connection_pid, Stanza.message(jid(auction_id(item_id), hostname), "chat", ""))
     {:ok, %{item_id: item_id, connection_pid: connection_pid}}
   end
 

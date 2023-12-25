@@ -86,7 +86,7 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   @impl GenServer
-  def handle_info({:stanza, %{from: %{user: "sniper"}, type: "chat", body: "Join"}}, state) do
+  def handle_info({:stanza, %{from: %{user: "sniper"}, type: "chat"}}, state) do
     if state.wait_for_join_request_task_pid do
       send(state.wait_for_join_request_task_pid, :join_request_received)
     end
