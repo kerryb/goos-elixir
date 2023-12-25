@@ -28,6 +28,11 @@ defmodule AuctionSniper do
   end
 
   @impl GenServer
+  def handle_info({:stanza, %{type: "chat"}}, state) do
+    # TODO: Show ‘Lost’ in GUI
+    {:noreply, state}
+  end
+
   def handle_info(_message, state) do
     {:noreply, state}
   end

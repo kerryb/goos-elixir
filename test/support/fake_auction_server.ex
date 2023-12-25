@@ -16,7 +16,7 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   @impl GenServer
   def init(item_id) do
-    {:ok, %{item_id: item_id, connection_pid: nil, received_join_request?: false, wait_for_join_request_task_pid: nil}}
+    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, wait_for_join_request_task_pid: nil}}
   end
 
   def item_id(pid) do
@@ -77,7 +77,7 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   @impl GenServer
   def handle_cast({:wait_for_join_request, pid}, state) do
-    if state.received_join_request? do
+    if state.sniper_user_id do
       send(pid, :join_request_received)
       {:noreply, state}
     else
@@ -86,12 +86,13 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   @impl GenServer
-  def handle_info({:stanza, %{from: %{user: "sniper"}, type: "chat"}}, state) do
+  def handle_info({:stanza, %{from: %{user: user}, type: "chat"}}, state) do
     if state.wait_for_join_request_task_pid do
       send(state.wait_for_join_request_task_pid, :join_request_received)
     end
 
-    {:noreply, %{state | received_join_request?: true}}
+    :ok = Connection.send(state.connection_pid, Stanza.message(jid(user, @xmpp_hostname), "chat", ""))
+    {:noreply, %{state | sniper_user_id: user}}
   end
 
   def handle_info(_message, state) do

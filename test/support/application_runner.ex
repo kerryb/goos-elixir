@@ -1,6 +1,5 @@
 defmodule AuctionSniper.ApplicationRunner do
   @moduledoc false
-  import ExUnit.Assertions
 
   alias AuctionSniper.AuctionSniperDriver
   alias AuctionSniper.FakeAuctionServer
