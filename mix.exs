@@ -17,11 +17,16 @@ defmodule AuctionSniper.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_env), do: ["lib"]
 
+  @xmpp_hostname "localhost"
+  @sniper_id "sniper"
+  @sniper_password "sniper"
+  @auction_id "auction-54321"
+
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {AuctionSniper, []},
-      extra_applications: [:crypto, :observer, :wx, :runtime_tools, :romeo, :ssl]
+      mod: {AuctionSniper, [@xmpp_hostname, @sniper_id, @sniper_password, @auction_id]},
+      extra_applications: [:logger, :crypto, :observer, :wx, :runtime_tools, :romeo, :ssl]
     ]
   end
 

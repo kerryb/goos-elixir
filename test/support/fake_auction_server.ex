@@ -5,6 +5,7 @@ defmodule AuctionSniper.FakeAuctionServer do
   import ExUnit.Assertions
 
   alias Romeo.Connection
+  alias Romeo.Stanza
 
   @xmpp_hostname "localhost"
   @auction_password "auction"
@@ -15,7 +16,7 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   @impl GenServer
   def init(item_id) do
-    {:ok, %{item_id: item_id, connection_pid: nil}}
+    {:ok, %{item_id: item_id, connection_pid: nil, received_join_request?: false, wait_for_join_request_task_pid: nil}}
   end
 
   def item_id(pid) do
@@ -29,8 +30,23 @@ defmodule AuctionSniper.FakeAuctionServer do
   def announce_closed(_auction) do
   end
 
-  def has_received_join_request_from_sniper(_auction) do
-    flunk("TODO")
+  def has_received_join_request_from_sniper(pid) do
+    task = Task.async(&wait_for_join_request/0)
+    GenServer.cast(pid, {:wait_for_join_request, task.pid})
+
+    if Task.await(task, :infinity) do
+      :ok
+    else
+      flunk("Join message not received within five seconds")
+    end
+  end
+
+  defp wait_for_join_request do
+    receive do
+      :join_request_received -> true
+    after
+      :timer.seconds(5) -> false
+    end
   end
 
   @impl GenServer
@@ -46,6 +62,8 @@ defmodule AuctionSniper.FakeAuctionServer do
         ssl_opts: [verify: :verify_none]
       )
 
+    Connection.send(connection_pid, Stanza.presence())
+
     {:reply, state.item_id, %{state | connection_pid: connection_pid}}
   end
 
@@ -55,5 +73,28 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   defp jid(login, hostname) do
     "#{login}@#{hostname}"
+  end
+
+  @impl GenServer
+  def handle_cast({:wait_for_join_request, pid}, state) do
+    if state.received_join_request? do
+      send(pid, :join_request_received)
+      {:noreply, state}
+    else
+      {:noreply, %{state | wait_for_join_request_task_pid: pid}}
+    end
+  end
+
+  @impl GenServer
+  def handle_info({:stanza, %{from: %{user: "sniper"}, type: "chat", body: "Join"}}, state) do
+    if state.wait_for_join_request_task_pid do
+      send(state.wait_for_join_request_task_pid, :join_request_received)
+    end
+
+    {:noreply, %{state | received_join_request?: true}}
+  end
+
+  def handle_info(_message, state) do
+    {:noreply, state}
   end
 end
