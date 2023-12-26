@@ -1,5 +1,10 @@
 defmodule AuctionSniper.AuctionSniperDriver do
-  @moduledoc false
+  @moduledoc """
+  A test driver to interact with the running Scenic GUI.
+
+  There doesn’t seem to be an obvious clean way to do this, so this module
+  currently interacts quite unpleasantly with Scenic internals.
+  """
 
   import ExUnit.Assertions
 

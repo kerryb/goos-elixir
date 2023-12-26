@@ -31,6 +31,14 @@ defmodule AuctionSniper.FakeAuctionServer do
     GenServer.cast(pid, :announce_closed)
   end
 
+  @doc """
+  Wait up to five seconds for a join message to be received.
+
+  Uses a `Task` (started from the client function, not from the GenServer
+  process) to wait for a message, to avoid blocking the event loop. This
+  message will be sent either immediately (if the sniper has already joined),
+  or when the message arrives.
+  """
   def has_received_join_request_from_sniper(pid) do
     task = Task.async(&wait_for_join_request/0)
     GenServer.cast(pid, {:wait_for_join_request, task.pid})
