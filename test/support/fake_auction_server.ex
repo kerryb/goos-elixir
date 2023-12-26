@@ -27,7 +27,8 @@ defmodule AuctionSniper.FakeAuctionServer do
     GenServer.call(pid, :start_selling_item)
   end
 
-  def announce_closed(_auction) do
+  def announce_closed(pid) do
+    GenServer.cast(pid, :announce_closed)
   end
 
   def has_received_join_request_from_sniper(pid) do
@@ -85,13 +86,17 @@ defmodule AuctionSniper.FakeAuctionServer do
     end
   end
 
+  def handle_cast(:announce_closed, state) do
+    :ok = Connection.send(state.connection_pid, Stanza.message(jid(state.sniper_user_id, @xmpp_hostname), "chat", ""))
+    {:noreply, state}
+  end
+
   @impl GenServer
   def handle_info({:stanza, %{from: %{user: user}, type: "chat"}}, state) do
     if state.wait_for_join_request_task_pid do
       send(state.wait_for_join_request_task_pid, :join_request_received)
     end
 
-    :ok = Connection.send(state.connection_pid, Stanza.message(jid(user, @xmpp_hostname), "chat", ""))
     {:noreply, %{state | sniper_user_id: user}}
   end
 

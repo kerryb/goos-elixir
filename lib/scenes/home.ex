@@ -12,20 +12,23 @@ defmodule AuctionSniper.Scene.Home do
 
   @text_size 24
 
-  # ============================================================================
-  # setup
-
-  # --------------------------------------------------------
+  @impl Scenic.Scene
   def init(scene, _param, _opts) do
+    Registry.register(AuctionSniper.Registry, :home_scene, :pid)
+
     graph =
       [font: :roboto, font_size: @text_size]
       |> Graph.build()
-      |> add_specs_to_graph([
-        text_spec("Joining", translate: {20, 40})
-      ])
+      |> text("Joining", translate: {20, 40}, id: :status_text)
 
-    scene = push_graph(scene, graph)
-
+    scene = scene |> assign(graph: graph) |> push_graph(graph)
     {:ok, scene}
+  end
+
+  @impl GenServer
+  def handle_info(:lost, scene) do
+    graph = Graph.modify(scene.assigns.graph, :status_text, &text(&1, "Lost"))
+    scene = scene |> assign(graph: graph) |> push_graph(graph)
+    {:noreply, scene}
   end
 end

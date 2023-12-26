@@ -4,15 +4,28 @@ defmodule AuctionSniper.AuctionSniperDriver do
   import ExUnit.Assertions
 
   def shows_sniper_status(status_text) do
-    script_table =
-      :main_viewport
-      |> Process.whereis()
-      |> :sys.get_state()
-      |> Map.get(:script_table)
+    :main_viewport
+    |> Process.whereis()
+    |> :sys.get_state()
+    |> Map.get(:script_table)
+    |> wait_for_status(status_text, System.monotonic_time(:millisecond) + 5000)
+  end
 
+  defp wait_for_status(script_table, status_text, timeout) do
     graph = get_graph(script_table)
     {_, text} = Enum.find(graph, &match?({:draw_text, _}, &1))
-    assert text == status_text
+
+    cond do
+      text == status_text ->
+        :ok
+
+      System.monotonic_time(:millisecond) > timeout ->
+        flunk("Expected status to show #{inspect(status_text)}, but got #{inspect(text)}")
+
+      true ->
+        Process.sleep(10)
+        wait_for_status(script_table, status_text, timeout)
+    end
   end
 
   defp get_graph(script_table, timeout \\ :timer.seconds(1))

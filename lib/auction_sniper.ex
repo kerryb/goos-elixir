@@ -9,6 +9,7 @@ defmodule AuctionSniper do
     main_viewport_config = Application.get_env(:auction_sniper, :viewport)
 
     children = [
+      {Registry, keys: :unique, name: AuctionSniper.Registry},
       {Scenic, [main_viewport_config]},
       AuctionSniper.PubSub.Supervisor
     ]
@@ -29,7 +30,8 @@ defmodule AuctionSniper do
 
   @impl GenServer
   def handle_info({:stanza, %{type: "chat"}}, state) do
-    # TODO: Show ‘Lost’ in GUI
+    [{home_scene_pid, :pid}] = Registry.lookup(AuctionSniper.Registry, :home_scene)
+    send(home_scene_pid, :lost)
     {:noreply, state}
   end
 
