@@ -4,6 +4,8 @@ defmodule AuctionSniper.EndToEndTest do
   alias AuctionSniper.ApplicationRunner
   alias AuctionSniper.FakeAuctionServer
 
+  @moduletag :capture_log
+
   describe "AuctionSniper end-to-end" do
     setup do
       {:ok, auction} = start_supervised({FakeAuctionServer, "item-54321"})
