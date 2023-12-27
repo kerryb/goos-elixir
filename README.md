@@ -43,6 +43,10 @@ least it’s written in Elixir rather than Erlang, so I was able to [fork
 it](https://github.com/kerryb/romeo.git) and fix the errors without too much
 trouble.
 
+## Running the tests
+
+With openfire running (see above), run either `mix test`, or just `make`.
+
 ## Progress
 
 The repository has tags (`chapter-10`, `chapter-11` etc) marking the state at
