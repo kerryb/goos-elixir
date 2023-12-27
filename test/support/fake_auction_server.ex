@@ -16,7 +16,7 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   @impl GenServer
   def init(item_id) do
-    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, wait_for_join_request_task_pid: nil}}
+    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, received_messages: []}}
   end
 
   def item_id(pid) do
@@ -36,35 +36,23 @@ defmodule AuctionSniper.FakeAuctionServer do
     GenServer.cast(pid, :announce_closed)
   end
 
-  @doc """
-  Wait up to five seconds for a join message to be received.
+  def has_received_join_request_from_sniper(pid, timeout \\ System.monotonic_time(:millisecond) + 5000) do
+    case GenServer.call(pid, {:has_received_a_message, &any_message/1}) do
+      :ok ->
+        :ok
 
-  Uses a `Task` (started from the client function, not from the GenServer
-  process) to wait for a message, to avoid blocking the event loop. This
-  message will be sent either immediately (if the sniper has already joined),
-  or when the message arrives.
-  """
-  def has_received_join_request_from_sniper(pid) do
-    task = Task.async(&wait_for_join_request/0)
-    GenServer.cast(pid, {:wait_for_join_request, task.pid})
-
-    if Task.await(task, :infinity) do
-      :ok
-    else
-      flunk("Join message not received within five seconds")
+      {:error, message} ->
+        if System.monotonic_time(:millisecond) > timeout do
+          flunk(message)
+        else
+          Process.sleep(10)
+          has_received_join_request_from_sniper(pid, timeout)
+        end
     end
   end
 
   def has_received_bid(_auction, _bid, _sniper_id) do
     raise "TODO"
-  end
-
-  defp wait_for_join_request do
-    receive do
-      :join_request_received -> true
-    after
-      :timer.seconds(5) -> false
-    end
   end
 
   @impl GenServer
@@ -85,24 +73,15 @@ defmodule AuctionSniper.FakeAuctionServer do
     {:reply, state.item_id, %{state | connection_pid: connection_pid}}
   end
 
-  defp item_id_as_login(item_id) do
-    "auction-#{item_id}"
-  end
-
-  defp jid(login, hostname) do
-    "#{login}@#{hostname}"
-  end
-
-  @impl GenServer
-  def handle_cast({:wait_for_join_request, pid}, state) do
-    if state.sniper_user_id do
-      send(pid, :join_request_received)
-      {:noreply, state}
+  def handle_call({:has_received_a_message, matcher}, _from, state) do
+    if Enum.any?(state.received_messages, matcher) do
+      {:reply, :ok, state}
     else
-      {:noreply, %{state | wait_for_join_request_task_pid: pid}}
+      {:reply, {:error, "No messages in #{inspect(state.received_messages)} matched"}, state}
     end
   end
 
+  @impl GenServer
   def handle_cast({:report_price, price, increment, bidder}, state) do
     :ok =
       Connection.send(
@@ -123,15 +102,22 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   @impl GenServer
-  def handle_info({:stanza, %{from: %{user: user}, type: "chat"}}, state) do
-    if state.wait_for_join_request_task_pid do
-      send(state.wait_for_join_request_task_pid, :join_request_received)
-    end
-
-    {:noreply, %{state | sniper_user_id: user}}
+  def handle_info({:stanza, %{type: "chat"} = message}, state) do
+    {:noreply,
+     state |> Map.put(:sniper_user_id, message.from.user) |> Map.update!(:received_messages, &[message.body | &1])}
   end
 
   def handle_info(_message, state) do
     {:noreply, state}
   end
+
+  defp item_id_as_login(item_id) do
+    "auction-#{item_id}"
+  end
+
+  defp jid(login, hostname) do
+    "#{login}@#{hostname}"
+  end
+
+  defp any_message(_message), do: true
 end
