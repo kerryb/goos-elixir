@@ -5,6 +5,8 @@ defmodule AuctionSniper do
   alias Romeo.Connection
   alias Romeo.Stanza
 
+  # Client
+
   def start(_type, args) do
     main_viewport_config = Application.get_env(:auction_sniper, :viewport)
 
@@ -17,6 +19,8 @@ defmodule AuctionSniper do
     Supervisor.start_link(children, strategy: :one_for_one)
     GenServer.start_link(__MODULE__, args)
   end
+
+  # Server
 
   @impl GenServer
   def init([hostname, username, password, item_id]) do
@@ -38,6 +42,8 @@ defmodule AuctionSniper do
   def handle_info(_message, state) do
     {:noreply, state}
   end
+
+  # Private
 
   defp auction_id(item_id) do
     "auction-#{item_id}"

@@ -10,13 +10,10 @@ defmodule AuctionSniper.FakeAuctionServer do
   @xmpp_hostname "localhost"
   @auction_password "auction"
 
+  # Client
+
   def start_link(item_id) do
     GenServer.start_link(__MODULE__, item_id)
-  end
-
-  @impl GenServer
-  def init(item_id) do
-    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, received_messages: []}}
   end
 
   def item_id(pid) do
@@ -53,6 +50,13 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   def has_received_bid(_auction, _bid, _sniper_id) do
     raise "TODO"
+  end
+
+  # Server
+
+  @impl GenServer
+  def init(item_id) do
+    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, received_messages: []}}
   end
 
   @impl GenServer
@@ -110,6 +114,8 @@ defmodule AuctionSniper.FakeAuctionServer do
   def handle_info(_message, state) do
     {:noreply, state}
   end
+
+  # Private
 
   defp item_id_as_login(item_id) do
     "auction-#{item_id}"
