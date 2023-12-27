@@ -27,6 +27,10 @@ defmodule AuctionSniper.FakeAuctionServer do
     GenServer.call(pid, :start_selling_item)
   end
 
+  def report_price(_auction, _price, _increment, _bidder) do
+    raise "TODO"
+  end
+
   def announce_closed(pid) do
     GenServer.cast(pid, :announce_closed)
   end
@@ -48,6 +52,10 @@ defmodule AuctionSniper.FakeAuctionServer do
     else
       flunk("Join message not received within five seconds")
     end
+  end
+
+  def has_received_bid(_auction, _bid, _sniper_id) do
+    raise "TODO"
   end
 
   defp wait_for_join_request do
