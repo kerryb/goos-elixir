@@ -24,11 +24,12 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def start_selling_item(pid) do
+    # TODO: return value is ignored, so make this a `cast`
     GenServer.call(pid, :start_selling_item)
   end
 
-  def report_price(_auction, _price, _increment, _bidder) do
-    raise "TODO"
+  def report_price(pid, price, increment, bidder) do
+    GenServer.cast(pid, {:report_price, price, increment, bidder})
   end
 
   def announce_closed(pid) do
@@ -100,6 +101,20 @@ defmodule AuctionSniper.FakeAuctionServer do
     else
       {:noreply, %{state | wait_for_join_request_task_pid: pid}}
     end
+  end
+
+  def handle_cast({:report_price, price, increment, bidder}, state) do
+    :ok =
+      Connection.send(
+        state.connection_pid,
+        Stanza.message(
+          jid(state.sniper_user_id, @xmpp_hostname),
+          "chat",
+          "SOLVersion: 1.1; Event: PRICE; CurrentPrice: #{price}; Increment: #{increment}; Bidder: #{bidder}"
+        )
+      )
+
+    {:noreply, state}
   end
 
   def handle_cast(:announce_closed, state) do
