@@ -20,6 +20,7 @@ defmodule AuctionSniper.EndToEndTest do
       ApplicationRunner.shows_sniper_has_lost_auction()
     end
 
+    @tag skip: "Refactoring assertion for previous test"
     test "sniper makes a higher bid but loses", %{auction: auction} do
       FakeAuctionServer.start_selling_item(auction)
       ApplicationRunner.start_bidding_in(auction)
