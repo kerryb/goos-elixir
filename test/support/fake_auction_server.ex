@@ -21,8 +21,7 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def start_selling_item(pid) do
-    # TODO: return value is ignored, so make this a `cast`
-    GenServer.call(pid, :start_selling_item)
+    GenServer.cast(pid, :start_selling_item)
   end
 
   def report_price(pid, price, increment, bidder) do
@@ -64,19 +63,6 @@ defmodule AuctionSniper.FakeAuctionServer do
     {:reply, state.item_id, state}
   end
 
-  def handle_call(:start_selling_item, _from, state) do
-    {:ok, connection_pid} =
-      Connection.start_link(
-        jid: jid(item_id_as_login(state.item_id), @xmpp_hostname),
-        password: @auction_password,
-        ssl_opts: [verify: :verify_none]
-      )
-
-    Connection.send(connection_pid, Stanza.presence())
-
-    {:reply, state.item_id, %{state | connection_pid: connection_pid}}
-  end
-
   def handle_call({:has_received_a_message, matcher}, _from, state) do
     if Enum.any?(state.received_messages, matcher) do
       {:reply, :ok, state}
@@ -86,6 +72,19 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   @impl GenServer
+  def handle_cast(:start_selling_item, state) do
+    {:ok, connection_pid} =
+      Connection.start_link(
+        jid: jid(item_id_as_login(state.item_id), @xmpp_hostname),
+        password: @auction_password,
+        ssl_opts: [verify: :verify_none]
+      )
+
+    Connection.send(connection_pid, Stanza.presence())
+
+    {:noreply, %{state | connection_pid: connection_pid}}
+  end
+
   def handle_cast({:report_price, price, increment, bidder}, state) do
     :ok =
       Connection.send(
