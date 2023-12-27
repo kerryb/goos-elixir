@@ -15,7 +15,7 @@ defmodule AuctionSniper.EndToEndTest do
     test "sniper joins auction until auction closes", %{auction: auction} do
       FakeAuctionServer.start_selling_item(auction)
       ApplicationRunner.start_bidding_in(auction)
-      FakeAuctionServer.has_received_join_request_from_sniper(auction)
+      FakeAuctionServer.has_received_join_request_from_sniper(auction, ApplicationRunner.sniper_id())
       FakeAuctionServer.announce_closed(auction)
       ApplicationRunner.shows_sniper_has_lost_auction()
     end
@@ -23,7 +23,7 @@ defmodule AuctionSniper.EndToEndTest do
     test "sniper makes a higher bid but loses", %{auction: auction} do
       FakeAuctionServer.start_selling_item(auction)
       ApplicationRunner.start_bidding_in(auction)
-      FakeAuctionServer.has_received_join_request_from_sniper(auction)
+      FakeAuctionServer.has_received_join_request_from_sniper(auction, ApplicationRunner.sniper_id())
       FakeAuctionServer.report_price(auction, 1000, 98, "other bidder")
       FakeAuctionServer.has_received_bid(auction, 1098, ApplicationRunner.sniper_id())
       ApplicationRunner.has_shown_sniper_is_bidding()

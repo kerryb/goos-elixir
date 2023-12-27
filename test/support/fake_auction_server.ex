@@ -32,13 +32,12 @@ defmodule AuctionSniper.FakeAuctionServer do
     GenServer.cast(pid, :announce_closed)
   end
 
-  def has_received_join_request_from_sniper(pid, timeout \\ System.monotonic_time(:millisecond) + 5000) do
-    has_received_a_message(pid, fn _message -> true end, timeout)
+  def has_received_join_request_from_sniper(pid, sniper_id, timeout \\ System.monotonic_time(:millisecond) + 5000) do
+    has_received_a_message(pid, sniper_id, &(&1 == "Join"), timeout)
   end
 
   def has_received_bid(pid, bid, sniper_id, timeout \\ System.monotonic_time(:millisecond) + 5000) do
-    assert sniper_id(pid) == sniper_id
-    has_received_a_message(pid, &(&1 == "SOLVersion: 1.1; Event: BID; Price: #{bid}"), timeout)
+    has_received_a_message(pid, sniper_id, &(&1 == "SOLVersion: 1.1; Event: BID; Price: #{bid}"), timeout)
   end
 
   # Server
@@ -105,19 +104,17 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   # Private
 
-  defp sniper_id(pid), do: GenServer.call(pid, :sniper_id)
-
-  defp has_received_a_message(pid, matcher, timeout) do
+  defp has_received_a_message(pid, sniper_id, matcher, timeout) do
     case GenServer.call(pid, {:has_received_a_message, matcher}) do
       :ok ->
-        :ok
+        assert GenServer.call(pid, :sniper_id) == sniper_id
 
       {:error, message} ->
         if System.monotonic_time(:millisecond) > timeout do
           flunk(message)
         else
           Process.sleep(10)
-          has_received_a_message(pid, matcher, timeout)
+          has_received_a_message(pid, sniper_id, matcher, timeout)
         end
     end
   end
