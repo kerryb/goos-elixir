@@ -11,7 +11,7 @@ defmodule AuctionSniper.ApplicationRunner do
   @status_joining "Joining"
   @status_lost "Lost"
 
-  def sniper_xmpp_id, do: "#{@sniper_id}@#{@xmpp_hostname}"
+  def sniper_id, do: @sniper_id
 
   def start_bidding_in(auction) do
     {:ok, _sniper} =

@@ -33,7 +33,7 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def has_received_join_request_from_sniper(pid, timeout \\ System.monotonic_time(:millisecond) + 5000) do
-    case GenServer.call(pid, {:has_received_a_message, &any_message/1}) do
+    case GenServer.call(pid, {:has_received_a_message, fn _message -> true end}) do
       :ok ->
         :ok
 
@@ -47,21 +47,34 @@ defmodule AuctionSniper.FakeAuctionServer do
     end
   end
 
-  def has_received_bid(_auction, _bid, _sniper_id) do
-    raise "TODO"
+  def has_received_bid(pid, bid, sniper_id, timeout \\ System.monotonic_time(:millisecond) + 5000) do
+    assert sniper_id(pid) == sniper_id
+
+    case GenServer.call(pid, {:has_received_a_message, &(&1 == "SOLVersion: 1.1; Event: BID; Price: #{bid}")}) do
+      :ok ->
+        :ok
+
+      {:error, message} ->
+        if System.monotonic_time(:millisecond) > timeout do
+          flunk(message)
+        else
+          Process.sleep(10)
+          has_received_bid(pid, bid, sniper_id, timeout)
+        end
+    end
   end
 
   # Server
 
   @impl GenServer
   def init(item_id) do
-    {:ok, %{item_id: item_id, connection_pid: nil, sniper_user_id: nil, received_messages: []}}
+    {:ok, %{item_id: item_id, connection_pid: nil, sniper_id: nil, received_messages: []}}
   end
 
   @impl GenServer
-  def handle_call(:item_id, _from, state) do
-    {:reply, state.item_id, state}
-  end
+  def handle_call(:item_id, _from, state), do: {:reply, state.item_id, state}
+
+  def handle_call(:sniper_id, _from, state), do: {:reply, state.sniper_id, state}
 
   def handle_call({:has_received_a_message, matcher}, _from, state) do
     if Enum.any?(state.received_messages, matcher) do
@@ -90,7 +103,7 @@ defmodule AuctionSniper.FakeAuctionServer do
       Connection.send(
         state.connection_pid,
         Stanza.message(
-          jid(state.sniper_user_id, @xmpp_hostname),
+          jid(state.sniper_id, @xmpp_hostname),
           "chat",
           "SOLVersion: 1.1; Event: PRICE; CurrentPrice: #{price}; Increment: #{increment}; Bidder: #{bidder}"
         )
@@ -100,14 +113,13 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def handle_cast(:announce_closed, state) do
-    :ok = Connection.send(state.connection_pid, Stanza.message(jid(state.sniper_user_id, @xmpp_hostname), "chat", ""))
+    :ok = Connection.send(state.connection_pid, Stanza.message(jid(state.sniper_id, @xmpp_hostname), "chat", ""))
     {:noreply, state}
   end
 
   @impl GenServer
   def handle_info({:stanza, %{type: "chat"} = message}, state) do
-    {:noreply,
-     state |> Map.put(:sniper_user_id, message.from.user) |> Map.update!(:received_messages, &[message.body | &1])}
+    {:noreply, state |> Map.put(:sniper_id, message.from.user) |> Map.update!(:received_messages, &[message.body | &1])}
   end
 
   def handle_info(_message, state) do
@@ -116,6 +128,8 @@ defmodule AuctionSniper.FakeAuctionServer do
 
   # Private
 
+  defp sniper_id(pid), do: GenServer.call(pid, :sniper_id)
+
   defp item_id_as_login(item_id) do
     "auction-#{item_id}"
   end
@@ -123,6 +137,4 @@ defmodule AuctionSniper.FakeAuctionServer do
   defp jid(login, hostname) do
     "#{login}@#{hostname}"
   end
-
-  defp any_message(_message), do: true
 end
