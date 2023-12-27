@@ -9,6 +9,7 @@ defmodule AuctionSniper.ApplicationRunner do
   @sniper_password "sniper"
 
   @status_joining "Joining"
+  @status_bidding "Bidding"
   @status_lost "Lost"
 
   def sniper_id, do: @sniper_id
@@ -21,7 +22,7 @@ defmodule AuctionSniper.ApplicationRunner do
   end
 
   def has_shown_sniper_is_bidding do
-    raise "TODO"
+    AuctionSniperDriver.shows_sniper_status(@status_bidding)
   end
 
   def shows_sniper_has_lost_auction do
