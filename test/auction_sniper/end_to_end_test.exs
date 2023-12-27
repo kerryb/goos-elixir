@@ -25,8 +25,8 @@ defmodule AuctionSniper.EndToEndTest do
       ApplicationRunner.start_bidding_in(auction)
       FakeAuctionServer.has_received_join_request_from_sniper(auction, ApplicationRunner.sniper_id())
       FakeAuctionServer.report_price(auction, 1000, 98, "other bidder")
-      FakeAuctionServer.has_received_bid(auction, 1098, ApplicationRunner.sniper_id())
       ApplicationRunner.has_shown_sniper_is_bidding()
+      FakeAuctionServer.has_received_bid(auction, 1098, ApplicationRunner.sniper_id())
       FakeAuctionServer.announce_closed(auction)
       ApplicationRunner.shows_sniper_has_lost_auction()
     end
