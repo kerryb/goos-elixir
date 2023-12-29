@@ -2,6 +2,7 @@ defmodule AuctionSniper do
   @moduledoc false
   use GenServer
 
+  alias AuctionSniper.AuctionMessageTranslator
   alias Romeo.Connection
   alias Romeo.Stanza
 
@@ -33,7 +34,12 @@ defmodule AuctionSniper do
   end
 
   @impl GenServer
-  def handle_info({:stanza, %{type: "chat"}}, state) do
+  def handle_info({:stanza, %{type: "chat"} = message}, state) do
+    AuctionMessageTranslator.process_message(message)
+    {:noreply, state}
+  end
+
+  def handle_info(:auction_closed, state) do
     [{home_scene_pid, :pid}] = Registry.lookup(AuctionSniper.Registry, :home_scene)
     send(home_scene_pid, :lost)
     {:noreply, state}
