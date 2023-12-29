@@ -89,7 +89,12 @@ defmodule AuctionSniper.FakeAuctionServer do
   end
 
   def handle_cast(:announce_closed, state) do
-    :ok = Connection.send(state.connection_pid, Stanza.message(jid(state.sniper_id, @xmpp_hostname), "chat", ""))
+    :ok =
+      Connection.send(
+        state.connection_pid,
+        Stanza.message(jid(state.sniper_id, @xmpp_hostname), "chat", "SOLVersion: 1.1; Event: CLOSE;")
+      )
+
     {:noreply, state}
   end
 
