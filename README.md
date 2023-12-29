@@ -67,3 +67,28 @@ than by registering separate listeners.
 Testing the contents of the Scenic GUI isn’t straightforward, and the current
 implementation (in `AuctionSniper.AuctionSniperDriver`) is far more coupled to
 Scenic internals than I’d like.
+
+### Chapter 12: Getting Ready to Bid
+
+I didn’t see the “surprise failure” described in the book (where two tests try
+to simultaneously connect to the XMPP server), because the application is
+started in the test using `ExUnit.start_supervised/2`, which ensures the
+process is terminated before running the next test. However, this is only true
+because the two end-to-end tests are in the same module. ExUnit always runs
+testts in a single module sequentially (in a random order), but with `async:
+true` they could be run in parallel with other tests in different modules.
+
+In the process of adding support for multiple messages, I refactored
+`FakeAuctionServer` to keep a list of received messages, and check these when
+asserting that a particular message has been received. This is simpler than the
+way I did it in the previous chapter, and is also closer to the implementation
+in the book.
+
+Rather than mocking an `AuctionEventListener` interface (this would be a
+behaviour in Elixir), `AuctionMessageTranslator` sends a message to a process.
+In production this is the main application server, but in the test it’s the
+test process itself, so we can simply use `assert_receive`.
+
+The book includes an unused `chat` argument in the signature for
+`process_message`, but they specifically say “as it happens, we don’t need one
+for the current functionality”, so I’m calling Yagni for now.
